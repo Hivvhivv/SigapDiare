@@ -35,7 +35,7 @@ export default async function ProfilePage() {
 
       <section className="mb-6 rounded-xl border border-outline-variant bg-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-h3 font-bold">Data Ibu / Pengasuh</h2>
+          <h2 className="text-h3 font-bold">Data Orang Tua / Pengasuh</h2>
           <form action={logout}>
             <button
               type="submit"
@@ -57,7 +57,7 @@ export default async function ProfilePage() {
           </div>
           {account.participants[0] && (
             <div>
-              <dt className="text-caption text-on-surface-variant">Kode Responden</dt>
+              <dt className="text-caption text-on-surface-variant">Nomor Peserta</dt>
               <dd className="text-body font-semibold">{account.participants[0].code}</dd>
             </div>
           )}

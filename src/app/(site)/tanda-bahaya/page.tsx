@@ -13,7 +13,7 @@ export default function DangerSignsPage() {
     <Container narrow>
       <PageHeader
         title="Kenali Tanda Bahaya Diare!"
-        description="Sebagian kondisi diare dapat menyebabkan kehilangan cairan tubuh. Ibu perlu mengetahui tanda bahaya agar dapat segera membawa anak ke fasilitas kesehatan."
+        description="Diare bisa membuat si kecil kehilangan banyak cairan tubuh. Kenali tanda-tanda di bawah ini agar Ayah/Bunda tahu kapan harus segera membawa anak ke fasilitas kesehatan."
       />
 
       <div role="alert" className="mb-8 rounded-xl border border-l-[6px] border-danger-border border-l-danger bg-danger-soft p-5">
@@ -46,7 +46,7 @@ export default function DangerSignsPage() {
       </ol>
 
       <Callout variant="disclaimer" className="mt-8">
-        Informasi ini membantu Ibu mengenali kondisi yang perlu pertolongan segera. SIGAP DIARE tidak menggantikan
+        Informasi ini membantu Ayah/Bunda mengenali kondisi yang perlu pertolongan segera. SIGAP DIARE tidak menggantikan
         pemeriksaan oleh tenaga kesehatan.
       </Callout>
     </Container>

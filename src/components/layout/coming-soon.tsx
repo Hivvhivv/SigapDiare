@@ -7,7 +7,7 @@ export function ComingSoon({ title, description }: { title: string; description?
       <Hourglass aria-hidden className="size-12 text-primary-300" />
       <h2 className="text-h3 font-bold">{title}</h2>
       <p className="max-w-prose text-body text-on-surface-variant">
-        {description ?? "Bagian ini sedang disiapkan dan akan segera tersedia."}
+        {description ?? "Bagian ini sedang kami siapkan dan akan segera bisa dipakai. Terima kasih sudah menunggu!"}
       </p>
       <ButtonLink href="/beranda" variant="tonal" className="mt-2">
         Kembali ke Beranda

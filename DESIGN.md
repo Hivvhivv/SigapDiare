@@ -555,12 +555,15 @@ Penyesuaian keselamatan dari mockup (wajib):
 
 ## 9. Gaya Bahasa (Voice & Tone)
 
-- Sapaan "Ibu" dan "si kecil"; hangat dan menyemangati.
+- Pengguna adalah **ayah, bunda, nenek/kakek, atau pengasuh**. Sapaan umum "Ayah/Bunda"; sapaan pribadi memakai nama depan ("Selamat pagi, Sarah!"), bukan "Bunda {nama}". Jangan menyapa hanya "Ibu".
+- Hangat dan menyemangati; "si kecil" untuk anak.
+- Istilah awam di sisi orang tua: "Kuis Awal/Kuis Akhir" (bukan pretest/posttest), "Nomor Peserta" (bukan kode responden), "Catatan Diare" (bukan pelacak), "Tanya Jawab" (bukan FAQ). Istilah penelitian tetap dipakai di panel admin.
+- Setiap form memberi petunjuk singkat di bawah field (mis. "Kode akses berisi 8 angka…").
 - Kalimat pendek (≤ 20 kata), satu gagasan per kalimat.
 - Istilah medis disertai penjelasan: "dehidrasi (kekurangan cairan tubuh)".
 - Pesan tanda bahaya: tegas dan langsung, tanpa menyalahkan. "Segera bawa anak ke fasilitas kesehatan terdekat."
 - Hindari kalimat diagnosis: tulis "Anda mencatat darah pada tinja", bukan "Anak Anda mengalami disentri".
-- Pesan keberhasilan positif: "Bagus, Bu! 6 dari 7 kebiasaan sehat sudah dilakukan hari ini."
+- Pesan keberhasilan positif dan langsung muncul saat dicentang: "Hebat, tinggal 1 lagi. Si kecil makin terlindungi!" / "Luar biasa! Semua kebiasaan sehat sudah dilakukan hari ini." (`src/lib/friendly.ts`).
 
 ## 10. Aksesibilitas
 

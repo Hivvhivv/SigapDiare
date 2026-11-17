@@ -16,7 +16,7 @@ export default async function ForgotCodePage() {
   return (
     <AuthCard
       title="Lupa Kode Akses?"
-      description="Hubungi admin SIGAP DIARE dan sebutkan nama serta nomor HP yang Ibu daftarkan."
+      description="Hubungi admin SIGAP DIARE dan sebutkan nama serta nomor HP yang dipakai saat mendaftar."
     >
       <div className="flex flex-col gap-4">
         <div className="flex justify-center">
@@ -32,7 +32,7 @@ export default async function ForgotCodePage() {
             Hubungi Admin via WhatsApp
           </a>
         ) : (
-          <Callout variant="info">Nomor WhatsApp admin belum diatur. Silakan hubungi peneliti atau kader yang mendampingi Ibu.</Callout>
+          <Callout variant="info">Nomor WhatsApp admin belum diatur. Silakan hubungi peneliti atau kader yang mendampingi Ayah/Bunda.</Callout>
         )}
         <p className="text-caption text-on-surface-variant">
           Demi keamanan, admin akan memastikan pesan berasal dari nomor HP yang terdaftar sebelum memberikan kode.

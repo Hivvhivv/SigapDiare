@@ -20,7 +20,7 @@ export default async function SwitchChildPage() {
     <Container narrow>
       <PageHeader
         title="Pilih Anak"
-        description="Pilih anak yang ingin Ibu pantau. Beranda akan menampilkan data anak yang dipilih."
+        description="Pilih anak yang ingin dipantau. Beranda akan menampilkan data anak yang dipilih."
         back={{ href: "/beranda", label: "Kembali ke Beranda" }}
       />
 

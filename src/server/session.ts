@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import type { Role } from "@prisma/client";
+import { isStaff } from "@/lib/auth/roles";
 import { db } from "./db";
 
 // Token acak di cookie HttpOnly; database hanya menyimpan hash SHA-256-nya.
@@ -17,7 +18,7 @@ function hashToken(token: string) {
 
 export async function createSession(userId: string, role: Role) {
   const token = randomBytes(32).toString("base64url");
-  const expiresAt = new Date(Date.now() + (role === "ADMIN" ? ADMIN_SESSION_MS : RESPONDENT_SESSION_MS));
+  const expiresAt = new Date(Date.now() + (isStaff(role) ? ADMIN_SESSION_MS : RESPONDENT_SESSION_MS));
   await db.session.create({ data: { tokenHash: hashToken(token), userId, expiresAt } });
   await db.user.update({ where: { id: userId }, data: { lastActiveAt: new Date() } });
   (await cookies()).set(SESSION_COOKIE, token, {
@@ -51,6 +52,7 @@ export const getSessionUser = cache(async () => {
           activeChildId: true,
           timezone: true,
           lastActiveAt: true,
+          mustChangePassword: true,
         },
       },
     },

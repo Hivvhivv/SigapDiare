@@ -1,15 +1,30 @@
-import { ArrowLeftRight, ClipboardCheck, Droplets, GlassWater, HeartPulse, NotebookPen, Pill, Sparkles } from "lucide-react";
+import {
+  ArrowLeftRight,
+  CircleQuestionMark,
+  ClipboardCheck,
+  Droplets,
+  GlassWater,
+  MessageCircle,
+  NotebookPen,
+  Pill,
+  Sparkles,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { ChecklistCard } from "@/components/home/checklist-card";
 import { QuickAccess } from "@/components/home/quick-access";
+import { FamilyIllustration } from "@/components/illustrations/family";
 import { DangerAlert } from "@/components/safety/danger-alert";
 import { DoctorCard } from "@/components/safety/doctor-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { SectionHeader } from "@/components/ui/section-header";
+import { TAGLINE_SHORT } from "@/content/copy/site";
 import { formatAge, formatDateTimeId } from "@/lib/dates";
+import { PHASE_FRIENDLY_LABEL } from "@/lib/eval/window";
+import { firstName } from "@/lib/friendly";
 import { requireRespondent } from "@/server/guards";
 import { getHomeData } from "@/server/queries/home";
+import { getSupportWhatsapp } from "@/server/queries/settings";
 
 export const metadata: Metadata = { title: "Beranda" };
 
@@ -17,10 +32,9 @@ const CONSISTENCY_LABEL = { NORMAL: "Normal", SOFT: "Lembek", WATERY: "Cair" } a
 
 export default async function HomePage() {
   const user = await requireRespondent();
-  const data = await getHomeData(user);
+  const [data, whatsapp] = await Promise.all([getHomeData(user), getSupportWhatsapp()]);
   if (!data) return null;
-  const { child, lastEntry, episode, checklist, openInstrument } = data;
-  const firstName = user.name.split(/\s+/)[0];
+  const { child, lastEntry, episode, checklist, openInstrument, greeting } = data;
 
   return (
     <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-4 py-6 lg:gap-12 lg:px-8 lg:py-8">
@@ -58,14 +72,14 @@ export default async function HomePage() {
         <div className="flex flex-col gap-4 lg:col-span-7">
           <Chip className="w-fit">
             <Sparkles aria-hidden className="size-4" />
-            Sahabat Ibu & Si Kecil
+            {TAGLINE_SHORT}
           </Chip>
           <h1 className="text-display font-bold lg:text-display-lg">
-            Selamat Datang Kembali, <span className="text-primary-600">Bunda {firstName}!</span>
+            {greeting}, <span className="text-primary-600">{firstName(user.name)}!</span>
           </h1>
           <p className="max-w-prose text-body-lg text-on-surface-variant">
-            Pantau kondisi si kecil {child.nickname} hari ini dengan tenang dan teratur. Berikan cairan sesuai anjuran
-            tenaga kesehatan.
+            Semoga {child.nickname} sehat dan ceria hari ini. Yuk, cek kebiasaan sehat di rumah dan catat kondisi si
+            kecil bila ada keluhan.
           </p>
           {lastEntry && lastEntry.dangerSigns.length > 0 ? (
             <DangerAlert signs={lastEntry.dangerSigns} />
@@ -79,7 +93,7 @@ export default async function HomePage() {
                     BAB {lastEntry.stoolCount}× · {CONSISTENCY_LABEL[lastEntry.consistency]}
                   </>
                 ) : (
-                  "Belum ada catatan kondisi si kecil."
+                  `Belum ada catatan untuk ${child.nickname}. Catat bila si kecil BAB lebih sering atau lebih cair dari biasanya.`
                 )}
               </p>
             </div>
@@ -91,14 +105,8 @@ export default async function HomePage() {
             </ButtonLink>
           </div>
         </div>
-        <div
-          role="img"
-          aria-label="Ilustrasi ibu menggendong anak"
-          className="relative hidden aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-secondary-100 via-primary-100 to-tertiary-100 lg:col-span-5 lg:flex"
-        >
-          <span className="absolute -top-8 -left-8 size-40 rounded-full bg-white/50" />
-          <span className="absolute -right-10 -bottom-10 size-48 rounded-full bg-primary-200/60" />
-          <HeartPulse aria-hidden className="relative size-24 text-primary-600" />
+        <div className="hidden lg:col-span-5 lg:block">
+          <FamilyIllustration />
         </div>
       </section>
 
@@ -127,17 +135,50 @@ export default async function HomePage() {
               <ClipboardCheck aria-hidden className="size-6" />
             </span>
             <div>
-              <h2 className="text-h3 font-bold">Uji Pemahaman Bunda Sekarang</h2>
+              <h2 className="text-h3 font-bold">Yuk, Ikut {PHASE_FRIENDLY_LABEL[openInstrument.phase]}</h2>
               <p className="text-body text-primary-100">
-                {openInstrument.phase === "PRETEST" ? "Pretest" : "Posttest"} sudah dibuka. Hanya butuh beberapa menit.
+                Kuis singkat seputar diare pada anak. Hanya butuh beberapa menit, tidak ada jawaban yang memalukan.
               </p>
             </div>
           </div>
           <ButtonLink href="/evaluasi" variant="white">
-            Mulai {openInstrument.phase === "PRETEST" ? "Pretest" : "Posttest"}
+            Mulai Kuis
           </ButtonLink>
         </section>
       )}
+
+      <section
+        aria-labelledby="help-title"
+        className="flex flex-col gap-4 rounded-xl border border-outline-variant bg-surface p-6 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div className="flex items-center gap-4">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary-100">
+            <CircleQuestionMark aria-hidden className="size-6 text-secondary-700" />
+          </span>
+          <div>
+            <h2 id="help-title" className="text-h3 font-bold">
+              Butuh bantuan?
+            </h2>
+            <p className="text-body text-on-surface-variant">Lihat jawaban pertanyaan umum, atau tanyakan langsung ke admin.</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <ButtonLink href="/faq" variant="outlined">
+            Tanya Jawab
+          </ButtonLink>
+          {whatsapp && (
+            <a
+              href={`https://wa.me/${whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center gap-2 rounded-full bg-success px-6 text-label font-semibold text-white hover:bg-success-strong"
+            >
+              <MessageCircle aria-hidden className="size-5" />
+              Chat Admin
+            </a>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

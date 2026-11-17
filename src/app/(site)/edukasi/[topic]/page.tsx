@@ -21,7 +21,7 @@ export default async function TopicPage(props: PageProps<"/edukasi/[topic]">) {
       {topic.status !== "PUBLISHED" ? (
         <ComingSoon
           title="Materi sedang ditinjau"
-          description="Materi ini sedang ditinjau tenaga kesehatan sebelum diterbitkan. Sementara itu, Ibu dapat membaca halaman Tanda Bahaya."
+          description="Materi ini sedang ditinjau tenaga kesehatan sebelum diterbitkan. Sementara itu, Ayah/Bunda dapat membaca halaman Tanda Bahaya."
         />
       ) : topic.lessons.length === 0 ? (
         <ComingSoon title="Submateri sedang disiapkan" />

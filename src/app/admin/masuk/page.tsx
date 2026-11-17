@@ -4,13 +4,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminLoginForm } from "@/components/forms/admin-login-form";
 import { LogoMark } from "@/components/layout/logo";
+import { isStaff } from "@/lib/auth/roles";
 import { getSessionUser } from "@/server/session";
 
 export const metadata: Metadata = { title: "Login Admin" };
 
 export default async function AdminLoginPage() {
   const user = await getSessionUser();
-  if (user?.role === "ADMIN") redirect("/admin");
+  if (isStaff(user?.role)) redirect("/admin");
 
   return (
     <div className="flex min-h-full flex-1 flex-col">

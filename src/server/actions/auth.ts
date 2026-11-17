@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { hashAccessCode, normalizeAccessCode } from "@/lib/auth/access-code";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { isStaff } from "@/lib/auth/roles";
 import { formString, safeNextPath, type FormState } from "@/lib/form";
 import { normalizeIndonesianPhone } from "@/lib/phone";
 import { db } from "../db";
+import { CHANGE_PASSWORD_PATH } from "../guards";
 import { clearAttempts, clientIp, HOUR, isRateLimited, MINUTE, recordAttempt } from "../rate-limit";
 import { createRespondent } from "../services/respondents";
 import { createSession, deleteCurrentSession } from "../session";
@@ -102,17 +104,17 @@ export async function loginAdmin(_prev: FormState, formData: FormData): Promise<
 
   const user = await db.user.findFirst({
     where: { email: parsed.data.email },
-    select: { id: true, role: true, banned: true, passwordHash: true },
+    select: { id: true, role: true, banned: true, passwordHash: true, mustChangePassword: true },
   });
   const valid = await verifyPassword(parsed.data.password, user?.passwordHash ?? (await dummyHash));
-  if (!user || !valid || user.role !== "ADMIN" || user.banned) {
+  if (!user || !valid || !isStaff(user.role) || user.banned) {
     keys.forEach((key) => recordAttempt(key, LOGIN_WINDOW));
     return { message: "Email atau password salah.", values };
   }
 
   keys.forEach(clearAttempts);
-  await createSession(user.id, "ADMIN");
-  redirect("/admin");
+  await createSession(user.id, user.role);
+  redirect(user.mustChangePassword ? CHANGE_PASSWORD_PATH : "/admin");
 }
 
 export async function logout() {

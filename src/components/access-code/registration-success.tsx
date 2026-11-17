@@ -12,7 +12,7 @@ export function RegistrationSuccess({ code, nextHref }: { code: string; nextHref
   return (
     <div className="flex flex-col gap-5">
       <div className="rounded-lg border-2 border-dashed border-primary-300 bg-primary-50 px-4 py-6 text-center">
-        <p className="text-caption font-semibold text-on-surface-variant">Kode Akses Ibu</p>
+        <p className="text-caption font-semibold text-on-surface-variant">Kode Akses Anda</p>
         <p className="mt-1 text-[2rem] leading-tight font-extrabold tracking-[0.15em] text-primary-700 tabular-nums">
           {code}
         </p>
@@ -21,7 +21,7 @@ export function RegistrationSuccess({ code, nextHref }: { code: string; nextHref
         <CopyCodeButton code={code} />
       </div>
       <Callout variant="warning">
-        Simpan kode ini baik-baik. Kode dipakai setiap kali masuk. Kami sarankan screenshot layar ini atau catat di buku.
+        Simpan kode ini baik-baik, ya. Kode dipakai setiap kali masuk. Paling mudah: screenshot (foto layar) halaman ini atau catat di buku KIA.
       </Callout>
       <label className="flex cursor-pointer items-start gap-3 rounded-md border border-outline-variant p-4">
         <input

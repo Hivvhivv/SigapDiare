@@ -108,15 +108,21 @@ async function seedAdmin() {
     return;
   }
   if (password.length < 12) throw new Error("ADMIN_SEED_PASSWORD minimal 12 karakter");
+  // Akun dari seed adalah Super Admin pertama (dapat menambah admin lain).
   const existing = await db.user.findFirst({ where: { email } });
   if (existing) {
-    console.log(`Admin ${email} sudah ada.`);
+    if (existing.role === "ADMIN") {
+      await db.user.update({ where: { id: existing.id }, data: { role: "SUPER_ADMIN" } });
+      console.log(`Admin ${email} dinaikkan menjadi Super Admin.`);
+    } else {
+      console.log(`Super Admin ${email} sudah ada.`);
+    }
     return;
   }
   await db.user.create({
-    data: { name: "Admin SIGAP DIARE", email, role: "ADMIN", passwordHash: await hashPassword(password) },
+    data: { name: "Super Admin SIGAP DIARE", email, role: "SUPER_ADMIN", passwordHash: await hashPassword(password) },
   });
-  console.log(`Admin ${email} dibuat.`);
+  console.log(`Super Admin ${email} dibuat.`);
 }
 
 async function main() {

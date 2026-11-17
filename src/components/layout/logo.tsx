@@ -17,7 +17,7 @@ export function Logo({ href = "/", tagline = true }: { href?: string; tagline?: 
       <LogoMark />
       <span className="flex flex-col leading-tight">
         <span className="text-[1.0625rem] font-extrabold tracking-tight text-primary-700">SIGAP DIARE</span>
-        {tagline && <span className="hidden text-[0.75rem] text-on-surface-variant sm:block">Sahabat Ibu & Si Kecil</span>}
+        {tagline && <span className="hidden text-[0.75rem] text-on-surface-variant sm:block">Sahabat Ayah Bunda</span>}
       </span>
     </Link>
   );

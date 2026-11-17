@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isStaff } from "@/lib/auth/roles";
 import { redirect } from "next/navigation";
 import { AccessCodeLoginForm } from "@/components/forms/access-code-login-form";
 import { AuthCard } from "@/components/layout/auth-card";
@@ -9,7 +10,7 @@ export const metadata: Metadata = { title: "Masuk" };
 
 export default async function LoginPage(props: PageProps<"/masuk">) {
   const user = await getSessionUser();
-  if (user) redirect(user.role === "ADMIN" ? "/admin" : "/beranda");
+  if (user) redirect(isStaff(user.role) ? "/admin" : "/beranda");
   const { next } = await props.searchParams;
 
   return (

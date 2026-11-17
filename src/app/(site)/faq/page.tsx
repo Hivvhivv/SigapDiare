@@ -14,7 +14,7 @@ export default async function FaqPage() {
 
   return (
     <Container narrow>
-      <PageHeader title="Tanya Jawab (FAQ)" description="Pertanyaan yang sering diajukan ibu seputar diare dan penggunaan website." />
+      <PageHeader title="Tanya Jawab (FAQ)" description="Pertanyaan yang sering diajukan orang tua seputar diare dan penggunaan website." />
       {items.length === 0 && <Callout variant="info">Jawaban sedang disiapkan dan ditinjau tenaga kesehatan.</Callout>}
       <div className="flex flex-col gap-8">
         {[...byCategory].map(([category, faqs]) => (

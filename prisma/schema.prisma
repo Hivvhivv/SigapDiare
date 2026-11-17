@@ -15,9 +15,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// USER = responden. ADMIN = pengelola. SUPER_ADMIN = pengelola + kelola akun admin.
 enum Role {
   USER
   ADMIN
+  SUPER_ADMIN
 }
 
 enum Sex {
@@ -91,6 +93,7 @@ model User {
   phoneNumber        String? // wajib & unik untuk responden, E.164 (+628…). Partial unique index.
   email              String? // hanya admin. Partial unique index.
   passwordHash       String? // hanya admin (scrypt)
+  mustChangePassword Boolean? // admin dengan password sementara; null = false (dokumen lama)
   role               Role      @default(USER)
   isClinicalReviewer Boolean   @default(false)
   banned             Boolean   @default(false)

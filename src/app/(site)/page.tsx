@@ -1,5 +1,7 @@
-import { BookOpen, ClipboardCheck, Droplets, HeartPulse, Siren } from "lucide-react";
+import { isStaff } from "@/lib/auth/roles";
+import { BookOpen, ClipboardCheck, Droplets, HeartPulse, Siren, Users } from "lucide-react";
 import { redirect } from "next/navigation";
+import { FamilyIllustration } from "@/components/illustrations/family";
 import { ButtonLink } from "@/components/ui/button";
 import { TAGLINE } from "@/content/copy/site";
 import { getSessionUser } from "@/server/session";
@@ -8,12 +10,12 @@ const PILLARS = [
   { title: "Edukasi", text: "Kenali penyebab, gejala, dan risiko diare pada balita.", Icon: BookOpen },
   { title: "Pencegahan", text: "Bangun kebiasaan bersih lewat checklist harian.", Icon: Droplets },
   { title: "Pemantauan", text: "Catat kondisi si kecil dari waktu ke waktu.", Icon: HeartPulse },
-  { title: "Evaluasi", text: "Ukur pemahaman Ibu sebelum dan sesudah belajar.", Icon: ClipboardCheck },
+  { title: "Kuis", text: "Kuis singkat sebelum dan sesudah belajar.", Icon: ClipboardCheck },
 ];
 
 export default async function LandingPage() {
   const user = await getSessionUser();
-  if (user) redirect(user.role === "ADMIN" ? "/admin" : "/beranda");
+  if (user) redirect(isStaff(user.role) ? "/admin" : "/beranda");
 
   return (
     <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-8 lg:gap-16 lg:px-8 lg:py-12">
@@ -24,8 +26,12 @@ export default async function LandingPage() {
           </h1>
           <p className="text-h3 font-semibold text-primary-800">{TAGLINE}</p>
           <p className="max-w-prose text-body-lg text-on-surface-variant">
-            Pelajari informasi penting seputar diare pada anak, mulai dari mengenali gejala, mencegah penularan, hingga
-            memahami langkah penanganan awal yang tepat.
+            Belajar mengenali, mencegah, dan menangani diare pada si kecil dengan bahasa yang mudah. Gratis, cukup
+            daftar dengan nama dan nomor HP.
+          </p>
+          <p className="flex items-center gap-2 text-body font-semibold text-secondary-800">
+            <Users aria-hidden className="size-5" />
+            Untuk ayah, bunda, nenek, kakek, dan pengasuh balita.
           </p>
           <div className="mt-2 flex flex-wrap gap-3">
             <ButtonLink href="/daftar">Daftar Sekarang</ButtonLink>
@@ -34,7 +40,9 @@ export default async function LandingPage() {
             </ButtonLink>
           </div>
         </div>
-        <HeroIllustration />
+        <div className="hidden lg:col-span-5 lg:block">
+          <FamilyIllustration />
+        </div>
       </section>
 
       <section className="flex flex-col gap-4 rounded-xl border border-danger-border bg-danger-soft p-6 sm:flex-row sm:items-center sm:justify-between">
@@ -69,21 +77,6 @@ export default async function LandingPage() {
           ))}
         </ul>
       </section>
-    </div>
-  );
-}
-
-// Penanda tempat ilustrasi ibu menggendong anak (aset ilustrasi menyusul, PRD Q8).
-function HeroIllustration() {
-  return (
-    <div
-      role="img"
-      aria-label="Ilustrasi ibu menggendong anak"
-      className="relative hidden aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-secondary-100 via-primary-100 to-tertiary-100 lg:col-span-5 lg:flex"
-    >
-      <span className="absolute -top-8 -left-8 size-40 rounded-full bg-white/50" />
-      <span className="absolute -right-10 -bottom-10 size-48 rounded-full bg-primary-200/60" />
-      <HeartPulse aria-hidden className="relative size-24 text-primary-600" />
     </div>
   );
 }

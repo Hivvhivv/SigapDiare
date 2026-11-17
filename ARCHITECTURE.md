@@ -178,7 +178,10 @@ Akun responden hanya dibuat lewat `/daftar`; tidak ada endpoint admin untuk memb
 ### 6.3 Admin
 
 - Email + password; hash scrypt (`src/lib/auth/password.ts`), minimal 12 karakter. Saat email tidak terdaftar tetap dijalankan verifikasi terhadap hash palsu agar waktu respons sama.
-- Admin pertama dibuat lewat skrip seed (`ADMIN_SEED_EMAIL` + password sementara yang wajib diganti saat login pertama). Admin berikutnya ditambahkan dari `/admin/pengaturan/admin`.
+- Tiga role (`Role` enum): `USER` (responden), `ADMIN`, `SUPER_ADMIN`. Aturan di `src/lib/auth/roles.ts` (`isStaff`, `canManageAdmins`, `adminChangeError`, beserta unit test). Guard: `requireAdmin()` untuk ADMIN & SUPER_ADMIN, `requireSuperAdmin()` untuk Kelola Admin.
+- Super Admin pertama dibuat oleh `npm run db:seed` (`ADMIN_SEED_EMAIL`/`ADMIN_SEED_PASSWORD`; akun lama ber-role ADMIN dengan email itu dinaikkan). Admin berikutnya ditambahkan Super Admin di `/admin/admin` dengan password sementara (14 karakter acak, tampil sekali) dan `mustChangePassword = true`.
+- Admin dengan `mustChangePassword` diarahkan ke `/admin/akun` oleh `requireAdmin()` sampai password diganti. Mengganti password mencabut semua sesi lalu membuat sesi baru. Reset password oleh Super Admin mencabut semua sesi target.
+- Aturan: Super Admin tidak dapat menonaktifkan/menurunkan dirinya sendiri, dan harus selalu ada minimal satu Super Admin aktif.
 - Rate limit login admin: 5 percobaan per 15 menit per IP dan per email.
 
 Persetujuan privasi disimpan di `Consent` dengan versi dokumen dan waktu.
@@ -525,7 +528,9 @@ Catatan:
   - `autoScore` dan `sectionScores` sementara disimpan; `submittedAt` diisi dan attempt menjadi read-only.
 - Penilaian isian (`/admin/evaluasi/[id]/penilaian`): admin memberi skor 0..`points` per `EvalAnswer`. Saat semua isian yang dinilai pada sebuah attempt sudah terisi, `totalScore` dan `sectionScores` dihitung ulang. Penilai hanya melihat kode responden.
 - Instrumen dikunci untuk diedit setelah ada attempt yang masuk (mencegah perubahan soal di tengah pengukuran). Posttest dibuat dengan "Salin dari Pretest" (soal disalin sebagai baris baru dengan id baru).
-- Ekspor hasil: CSV lebar, satu baris per responden per fase. Kolom: `kode_responden, fase, mulai, selesai, Q01_jawaban, Q01_skor, …, subskor_<bagian>, skor_otomatis, skor_total`. Untuk SCALE diekspor nilai mentah dan skor (setelah dibalik).
+- Ekspor hasil (`/admin/evaluasi/[id]/ekspor`): CSV lebar, satu baris per responden yang sudah mengirim, pemisah **titik koma** + BOM UTF-8 agar langsung terbaca di Excel berbahasa Indonesia (di SPSS pilih pemisah `;`). Kolom: `kode_responden, fase, versi, mulai, selesai, Q01_jawaban, Q01_skor, …, subskor_<bagian>, skor_otomatis, skor_total`. Untuk SCALE diekspor nilai mentah dan skor (setelah dibalik); untuk CHOICE teks pilihannya. Sel yang diawali `= + - @` diberi tanda kutip satu untuk mencegah formula injection.
+- Instrumen yang dikerjakan responden untuk sebuah fase adalah **versi terbaru yang sudah dijadwalkan** (punya waktu buka). Instrumen tanpa waktu buka berstatus draft.
+- Implementasi: `src/server/queries/eval.ts` (DTO `PublicEvalQuestion`), `src/server/services/eval.ts` (kirim & hitung ulang skor), `src/server/actions/eval.ts` (responden), `src/server/actions/admin-eval.ts` (admin), `src/components/eval/quiz-runner.tsx`, halaman `/evaluasi`, `/evaluasi/[phase]`, `/admin/evaluasi/**`.
 - Posttest hanya dapat dibuka jika attempt pretest sudah submit dan `now()` di dalam jendela posttest.
 - Laporan skor membaca `Participant.code` + `EvalAttempt` tanpa join ke `User`. Ekspor CSV skor berisi kode responden, fase, skor, dan waktu, dan tidak pernah berisi kode akses.
 - Halaman **Responden** (`/admin/responden`) menampilkan seluruh responden: nama, nomor HP, kode akses (didekripsi di server, hanya untuk role `ADMIN`), kode responden, tanggal daftar, jumlah anak, status pretest/posttest (belum/sedang/selesai), aktivitas terakhir, dan status akun. Skor tidak ditampilkan di halaman ini. Membuka halaman, menyalin, dan membuat ulang kode akses dicatat di `AuditLog`.

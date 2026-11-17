@@ -1,4 +1,20 @@
 export const DEFAULT_TIMEZONE = "Asia/Jakarta";
+// WIB tidak mengenal daylight saving, jadi offset-nya tetap.
+const JAKARTA_OFFSET = "+07:00";
+
+/** Nilai <input type="datetime-local"> (WIB, "2026-11-20T08:00") → Date UTC. null bila kosong/tidak valid. */
+export function jakartaLocalToUtc(value: string): Date | null {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null;
+  const date = new Date(`${value}:00${JAKARTA_OFFSET}`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** Date UTC → nilai <input type="datetime-local"> dalam WIB. */
+export function utcToJakartaLocalInput(date: Date | null | undefined): string {
+  if (!date) return "";
+  const local = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+  return local.toISOString().slice(0, 16);
+}
 
 /** Tanggal lokal dalam format YYYY-MM-DD. */
 export function localDateString(date: Date, timeZone = DEFAULT_TIMEZONE): string {

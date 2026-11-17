@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { useActionState, useState } from "react";
 import { Chip } from "@/components/ui/chip";
 import { initialFormState } from "@/lib/form";
+import { checklistEncouragement } from "@/lib/friendly";
 import { saveChecklist } from "@/server/actions/checklist";
 
 export function ChecklistCard({ items, checked }: { items: { id: string; label: string }[]; checked: string[] }) {
@@ -25,11 +26,21 @@ export function ChecklistCard({ items, checked }: { items: { id: string; label: 
         <h2 id="checklist-title" className="text-h3 font-bold">
           Ceklis Rutin Hari Ini
         </h2>
-        <Chip>
+        <Chip tone={items.length > 0 && selected.size >= items.length ? "success" : "primary"}>
           {selected.size}/{items.length} Selesai
         </Chip>
       </div>
-      <p className="mb-4 text-caption text-on-surface-variant">Yuk, pastikan kebiasaan sehat berikut dilakukan setiap hari!</p>
+      {items.length > 0 && (
+        <div className="my-3 h-2.5 overflow-hidden rounded-full bg-outline-variant/40" aria-hidden>
+          <div
+            className="h-full rounded-full bg-secondary-600 transition-all"
+            style={{ width: `${Math.round((selected.size / items.length) * 100)}%` }}
+          />
+        </div>
+      )}
+      <p aria-live="polite" className="mb-4 text-body font-semibold text-secondary-800">
+        {checklistEncouragement(selected.size, items.length)}
+      </p>
 
       {items.length === 0 ? (
         <p className="text-body text-on-surface-variant">Daftar kebiasaan sedang disiapkan admin.</p>
@@ -58,12 +69,12 @@ export function ChecklistCard({ items, checked }: { items: { id: string; label: 
           </ul>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p aria-live="polite" className="text-caption text-on-surface-variant">
-              {state.ok ? state.message : "Centang kebiasaan yang sudah dilakukan, lalu simpan."}
+              {state.ok ? state.message : "Centang yang sudah dilakukan, lalu tekan Simpan."}
             </p>
             <button
               type="submit"
               disabled={pending}
-              className="inline-flex h-10 items-center rounded-full px-4 text-label font-semibold text-primary-700 hover:bg-primary-50 disabled:opacity-40"
+              className="inline-flex h-12 items-center rounded-full bg-primary-600 px-6 text-label font-semibold text-white hover:bg-primary-700 disabled:opacity-40"
             >
               {pending ? "Menyimpan…" : "Simpan"}
             </button>

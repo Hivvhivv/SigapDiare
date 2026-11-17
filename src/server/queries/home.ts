@@ -1,5 +1,6 @@
 import "server-only";
 import { ageInMonths, localDateString, todayAsDateOnly } from "@/lib/dates";
+import { timeGreeting } from "@/lib/friendly";
 import { DANGER_SIGNS, type DangerSign } from "@/lib/safety/danger-signs";
 import { db } from "../db";
 import type { SessionUser } from "../session";
@@ -62,6 +63,7 @@ export async function getHomeData(user: SessionUser) {
       checked: checklistDay?.checkedItems ?? [],
     },
     openInstrument,
+    greeting: timeGreeting(new Date(), user.timezone),
   };
 }
 

@@ -19,9 +19,9 @@ Dokumen acuan (baca sebelum mengerjakan fitur terkait):
 - **Next.js 16** (App Router, Turbopack) + React 19 + TypeScript strict. Versi ini berbeda dari pengetahuan umum: baca `node_modules/next/dist/docs/` sebelum memakai API Next. Poin penting: `src/proxy.ts` (bukan `middleware.ts`), `cookies()`/`params`/`searchParams` wajib `await`, `next lint` sudah tidak ada. `cacheComponents` sengaja dimatikan (ARCHITECTURE.md ADR 010).
 - Tailwind CSS v4 (token di `src/app/globals.css`, sesuai DESIGN.md) + komponen sendiri di `src/components/ui`; ikon `lucide-react`
 - **MongoDB** (wajib replica set) + **Prisma 6.19** (`prisma-client-js`, import dari `@prisma/client`). Prisma 7 belum mendukung MongoDB: jangan upgrade Prisma sebelum ada dukungannya. Lihat "Aturan MongoDB" di bawah.
-- Auth buatan sendiri (`src/server/session.ts`): token acak di cookie `sd_session`, hanya hash-nya disimpan di tabel `Session`. Role `USER`/`ADMIN`:
+- Auth buatan sendiri (`src/server/session.ts`): token acak di cookie `sd_session`, hanya hash-nya disimpan di tabel `Session`. Tiga role `USER` (responden) / `ADMIN` / `SUPER_ADMIN`; cek role lewat `src/lib/auth/roles.ts` (`isStaff`, `canManageAdmins`), jangan `role === "ADMIN"`:
   - Responden: daftar sendiri dengan **nama + nomor HP** (tanpa email) → kode akses langsung tampil di layar → masuk dengan **kode akses** tersebut. Admin tidak membuatkan akun responden; lupa kode dibantu admin via WhatsApp
-  - Admin: email + password (scrypt) di `/admin/masuk` (tautan "Login Admin" di bawah footer)
+  - Admin & Super Admin: email + password (scrypt) di `/admin/masuk` (tautan "Login Admin" di bawah footer). Hanya Super Admin yang dapat menambah/mengelola admin (`/admin/admin`, `requireSuperAdmin()`)
 - Zod 4 untuk validasi; form memakai Server Actions + `useActionState`
 - Vitest (unit); Playwright (e2e) belum dipasang
 - npm
@@ -42,7 +42,7 @@ npm run db:seed        # admin awal, item checklist, topik, FAQ (idempoten)
 
 Setup lokal: salin `.env.example` ke `.env`, isi `DATABASE_URL` (Atlas, atau `npm run db:local` di terminal terpisah), buat kunci `ACCESS_CODE_*` (perintah ada di `.env.example`), lalu `npm run db:push` dan `npm run db:seed`. MongoDB tidak memakai migrasi; setiap mengubah `schema.prisma`, jalankan `npm run db:push`. Jangan pernah mengganti `ACCESS_CODE_PEPPER`/`ACCESS_CODE_ENC_KEY` setelah ada responden: semua kode akses lama tidak akan bisa dipakai lagi.
 
-Windows Controlled Folder Access aktif di mesin ini. Bila sebuah aplikasi gagal menulis ke folder proyek (error ENOENT/EPERM), izinkan aplikasinya di Windows Security → Ransomware protection → Allow an app. Saat ini VS Code dan Claude Code sudah diizinkan.
+Windows Controlled Folder Access aktif di mesin ini. Bila sebuah aplikasi gagal menulis ke folder proyek (error ENOENT/EPERM), izinkan aplikasinya di Windows Security → Ransomware protection → Allow an app. VS Code sudah diizinkan; Claude Code (claude.exe) masih kadang diblokir, jadi bila Write/Edit gagal ENOENT, tulis lewat skrip Node (node.exe diizinkan).
 
 ## Aturan MongoDB (sudah terbukti menimbulkan bug)
 
@@ -82,6 +82,9 @@ Website ini menyentuh kesehatan anak. Setiap perubahan kode harus mematuhi atura
 - Route URL dalam Bahasa Indonesia (`/edukasi`, `/fitur/pelacak`) sesuai sitemap di ARCHITECTURE.md.
 - Server Components secara default; `"use client"` hanya untuk interaktivitas.
 - Mutasi lewat Server Actions di `src/server/actions/`, validasi input dengan skema Zod di `src/lib/validation/`.
+- **Jangan `.bind()` Server Action yang dipakai `useActionState`.** Di Next 16.4, action hasil bind yang mengembalikan state membuat request menggantung saat form dikirim tanpa JavaScript. Kirim id lewat `<input type="hidden">`.
+- React 19 me-reset form setelah action selesai: bila validasi gagal, kembalikan `values` dari action dan pakai sebagai `defaultValue`.
+- File yang diimpor komponen `"use client"` tidak boleh memakai `node:crypto`/modul Node (pakai Web Crypto `crypto.getRandomValues`).
 - Akses database hanya dari `src/server/`; komponen tidak mengimpor Prisma langsung.
 - Gunakan token warna dari DESIGN.md (`bg-primary`, `text-danger`), jangan hex langsung di className.
 - Target sentuh minimal 44×44 px, teks isi minimal 17 px (lihat DESIGN.md).

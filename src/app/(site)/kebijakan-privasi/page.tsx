@@ -8,30 +8,30 @@ export const metadata: Metadata = { title: "Kebijakan Privasi" };
 const SECTIONS = [
   {
     title: "Data yang kami kumpulkan",
-    body: "Nama dan nomor HP Ibu, profil anak (nama panggilan, tanggal lahir, jenis kelamin, berat badan bila diisi), catatan pemantauan, checklist, dan jawaban evaluasi.",
+    body: "Nama dan nomor HP Anda, profil anak (nama panggilan, tanggal lahir, jenis kelamin, berat badan bila diisi), catatan pemantauan, checklist, dan jawaban evaluasi.",
   },
   {
     title: "Untuk apa data digunakan",
-    body: "Untuk menampilkan fitur pemantauan bagi Ibu dan untuk keperluan penelitian SIGAP DIARE. Jawaban evaluasi disimpan dengan kode responden, terpisah dari nama dan nomor HP.",
+    body: "Untuk menampilkan fitur pemantauan bagi Anda dan untuk keperluan penelitian SIGAP DIARE. Jawaban evaluasi disimpan dengan kode responden, terpisah dari nama dan nomor HP.",
   },
   {
     title: "Siapa yang dapat melihat",
-    body: "Data anak hanya dapat dilihat oleh Ibu sendiri. Admin dapat melihat daftar responden dan kode akses untuk membantu Ibu yang lupa kode. Laporan penelitian tidak mencantumkan nama atau nomor HP.",
+    body: "Data anak hanya dapat dilihat oleh Anda sendiri. Admin dapat melihat daftar responden dan kode akses untuk membantu yang lupa kode. Laporan penelitian tidak mencantumkan nama atau nomor HP.",
   },
   {
     title: "Keamanan",
     body: "Website menggunakan koneksi aman (HTTPS). Kode akses disimpan dalam bentuk terenkripsi.",
   },
   {
-    title: "Hak Ibu",
-    body: "Ibu dapat meminta data dihapus dengan menghubungi admin. Data evaluasi yang sudah tidak terhubung dengan identitas dapat tetap digunakan untuk penelitian sesuai persetujuan.",
+    title: "Hak Anda",
+    body: "Anda dapat meminta data dihapus dengan menghubungi admin. Data evaluasi yang sudah tidak terhubung dengan identitas dapat tetap digunakan untuk penelitian sesuai persetujuan.",
   },
 ];
 
 export default function PrivacyPage() {
   return (
     <Container narrow>
-      <PageHeader title="Kebijakan Privasi" description="Ringkasan cara SIGAP DIARE menjaga data Ibu dan si kecil." />
+      <PageHeader title="Kebijakan Privasi" description="Ringkasan cara SIGAP DIARE menjaga data Anda dan si kecil." />
       <Callout variant="info" className="mb-8">
         Versi kebijakan: 2026-11 (draf). Teks final akan disesuaikan dengan persetujuan etik penelitian.
       </Callout>

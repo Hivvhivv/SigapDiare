@@ -1,4 +1,16 @@
-import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
+import { randomBytes, randomInt, scrypt, timingSafeEqual } from "node:crypto";
+
+export const MIN_ADMIN_PASSWORD_LENGTH = 12;
+
+// Tanpa karakter yang mirip (0/O, 1/l/I) agar mudah dibaca saat diserahkan ke admin baru.
+const TEMP_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+
+/** Password sementara 14 karakter untuk admin baru / reset password. */
+export function generateTempPassword(length = 14): string {
+  let password = "";
+  for (let i = 0; i < length; i++) password += TEMP_ALPHABET[randomInt(TEMP_ALPHABET.length)];
+  return password;
+}
 
 const N = 16384;
 const R = 8;

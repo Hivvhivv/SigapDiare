@@ -43,6 +43,11 @@ export function AccessCodeLoginForm({ next }: { next?: string }) {
           className={cn(inputClass, "h-14 text-center text-[1.375rem] font-bold tracking-[0.2em] tabular-nums")}
         />
         <FieldError id="field-code" errors={errors} />
+        {!errors?.length && (
+          <p className="text-caption text-on-surface-variant">
+            Kode akses berisi 8 angka, muncul saat Anda mendaftar. Cek tangkapan layar atau catatan Anda.
+          </p>
+        )}
       </div>
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Memeriksa…" : "Masuk"}

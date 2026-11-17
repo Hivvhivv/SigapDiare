@@ -1,5 +1,31 @@
 import { describe, expect, it } from "vitest";
-import { ageInMonths, dateOnlyToUtc, formatAge, localDateString, todayAsDateOnly } from "./dates";
+import {
+  ageInMonths,
+  dateOnlyToUtc,
+  formatAge,
+  jakartaLocalToUtc,
+  localDateString,
+  todayAsDateOnly,
+  utcToJakartaLocalInput,
+} from "./dates";
+
+describe("jakartaLocalToUtc / utcToJakartaLocalInput", () => {
+  it("mengubah waktu WIB dari input datetime-local ke UTC dan kembali", () => {
+    const utc = jakartaLocalToUtc("2026-11-20T08:00");
+    expect(utc?.toISOString()).toBe("2026-11-20T01:00:00.000Z");
+    expect(utcToJakartaLocalInput(utc)).toBe("2026-11-20T08:00");
+  });
+
+  it("melewati tengah malam dengan benar", () => {
+    expect(jakartaLocalToUtc("2026-11-20T03:30")?.toISOString()).toBe("2026-11-19T20:30:00.000Z");
+  });
+
+  it("kosong atau format salah → null / string kosong", () => {
+    expect(jakartaLocalToUtc("")).toBeNull();
+    expect(jakartaLocalToUtc("20-11-2026 08:00")).toBeNull();
+    expect(utcToJakartaLocalInput(null)).toBe("");
+  });
+});
 
 describe("localDateString", () => {
   it("memakai zona waktu Asia/Jakarta (UTC+7)", () => {

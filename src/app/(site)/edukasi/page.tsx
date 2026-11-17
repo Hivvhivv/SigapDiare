@@ -23,7 +23,7 @@ export default async function EducationPage() {
     <Container>
       <PageHeader
         title="Edukasi Kesehatan Anak"
-        description="Pelajari diare pada balita langkah demi langkah: mulai dari mengenali, mencegah, hingga menangani."
+        description="Belajar pelan-pelan, sesuai waktu Ayah/Bunda: mulai dari mengenali diare, mencegahnya, sampai menanganinya."
       />
       <ul className="grid gap-4 sm:grid-cols-2">
         {topics.map((topic) => {

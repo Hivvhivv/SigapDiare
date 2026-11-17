@@ -1,6 +1,8 @@
 # PRD: SIGAP DIARE
 
-**Sahabat Ibu untuk Cegah dan Tangani Diare pada Si Kecil**
+**Sahabat Ayah Bunda untuk Cegah dan Tangani Diare pada Si Kecil**
+
+> Tagline asli dokumen master: "Sahabat Ibu untuk …". Diperluas agar juga menyapa ayah dan pengasuh lain (ubah di `src/content/copy/site.ts` bila perlu).
 
 | Atribut | Nilai |
 |---|---|
@@ -54,12 +56,17 @@ SIGAP DIARE **bukan**:
 - Literasi kesehatan bervariasi; butuh bahasa sederhana, kalimat pendek, dan ilustrasi.
 - Kebutuhan: tahu apa yang harus dilakukan sekarang, kapan harus ke fasilitas kesehatan.
 
-### 5.2 Administrator
+### 5.2 Administrator (dua role: Admin dan Super Admin)
+
+| Role | Wewenang |
+|---|---|
+| **Admin** | Dashboard, daftar responden beserta kode aksesnya, evaluasi (susun soal, jadwal, penilaian isian, ekspor), dan menu pengelolaan konten |
+| **Super Admin** | Semua wewenang Admin, ditambah **Kelola Admin**: menambah admin/super admin, menaikkan/menurunkan role, menonaktifkan, reset password, menandai peninjau klinis |
 
 - Peneliti/pengelola konten.
-- Mengelola materi, panduan, checklist, FAQ, evaluasi, akun, dan laporan.
 - Masuk dengan email + password melalui tautan "Login Admin" di bawah footer.
-- Dapat melihat seluruh responden beserta kode aksesnya.
+- Admin baru menerima password sementara (tampil sekali) dan wajib menggantinya saat pertama masuk.
+- Harus selalu ada minimal satu Super Admin aktif; Super Admin tidak dapat menonaktifkan atau menurunkan role dirinya sendiri.
 
 ### 5.3 Peninjau Klinis (sub-peran admin)
 
@@ -298,7 +305,8 @@ Skor total dan subskor per bagian dihitung server. Kunci pilihan dan contoh jawa
 | ADMIN-10 | Laporan: statistik penggunaan, aktivitas, ringkasan evaluasi per kode responden (tanpa identitas dan tanpa kode akses); ekspor CSV | P0 |
 | ADMIN-11 | Pengaturan Website: kontak bantuan (termasuk nomor WhatsApp admin untuk halaman Lupa Kode), teks kebijakan privasi, zona waktu | P0 |
 | ADMIN-12 | Audit log untuk aksi admin (ubah konten, publikasi, ubah status akun, lihat/buat ulang kode akses, ekspor data) | P0 |
-| ADMIN-13 | Kelola akun admin: tambah admin (email + password sementara), tandai peninjau klinis, nonaktifkan admin | P1 |
+| ADMIN-13 | **Kelola Admin (khusus Super Admin)**: tambah admin dengan role Admin/Super Admin (password sementara tampil sekali, wajib diganti saat masuk pertama), naik/turunkan role, tandai peninjau klinis, reset password, nonaktifkan/aktifkan. Semua aksi dicatat di audit log | P0 |
+| ADMIN-14 | **Akun Saya**: setiap admin dapat mengganti password sendiri; semua sesi lain dikeluarkan | P0 |
 ### 7.14 Footer dan Login Admin (FOOT)
 
 | ID | Kebutuhan | Prioritas |
@@ -414,8 +422,8 @@ Ketentuan:
 
 ## Lampiran A. Teks Kunci
 
-- **Hero beranda (sudah login):** "Selamat Datang Kembali, Bunda {nama}!" / "Pantau kondisi si kecil {nama anak} hari ini dengan tenang dan teratur. Berikan cairan sesuai anjuran tenaga kesehatan."
-- **Hero landing (belum login):** "Selamat Datang di SIGAP DIARE!" / "Sahabat Ibu untuk Cegah dan Tangani Diare pada Si Kecil." / "Pelajari informasi penting seputar diare pada anak, mulai dari mengenali gejala, mencegah penularan, hingga memahami langkah penanganan awal yang tepat."
+- **Hero beranda (sudah login):** "Selamat pagi/siang/sore/malam, {nama depan}!" (sesuai jam WIB) / "Semoga {nama anak} sehat dan ceria hari ini. Yuk, cek kebiasaan sehat di rumah dan catat kondisi si kecil bila ada keluhan."
+- **Hero landing (belum login):** "Selamat Datang di SIGAP DIARE!" / "Sahabat Ayah Bunda untuk Cegah dan Tangani Diare pada Si Kecil." / "Pelajari informasi penting seputar diare pada anak, mulai dari mengenali gejala, mencegah penularan, hingga memahami langkah penanganan awal yang tepat."
 - **Banner tanda bahaya:** "Kenali Tanda Bahaya Diare!" / "Jika anak tampak sangat lemas, tidak mampu minum atau menyusu, atau menunjukkan tanda dehidrasi berat, segera cari pertolongan medis."
 - **Mengenal Diare:** "Apa Itu Diare?" / "Diare merupakan kondisi ketika anak mengalami buang air besar dengan konsistensi tinja lebih cair atau lembek dan frekuensinya lebih sering dari biasanya. Diare dapat disebabkan oleh infeksi virus, bakteri, atau parasit."
 - **Pencegahan:** "Cegah Diare Dimulai dari Rumah!" / "Menjaga kebersihan tangan, makanan, air, dan lingkungan merupakan langkah penting untuk membantu mencegah diare pada anak."

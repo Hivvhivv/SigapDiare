@@ -10,7 +10,7 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: { default: "SIGAP DIARE", template: "%s · SIGAP DIARE" },
-  description: "Sahabat Ibu untuk Cegah dan Tangani Diare pada Si Kecil.",
+  description: "Sahabat Ayah Bunda untuk Cegah dan Tangani Diare pada Si Kecil.",
 };
 
 export const viewport: Viewport = {

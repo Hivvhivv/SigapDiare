@@ -54,7 +54,7 @@ function UserMenu({ name }: { name: string }) {
         </span>
         <span className="hidden flex-col text-left leading-tight lg:flex">
           <span className="max-w-32 truncate text-[0.9375rem] font-semibold">{name}</span>
-          <span className="text-[0.75rem] text-on-surface-variant">Bunda</span>
+          <span className="text-[0.75rem] text-on-surface-variant">Lihat profil</span>
         </span>
         <ChevronDown aria-hidden className="hidden size-4 text-on-surface-variant transition-transform group-open:rotate-180 lg:block" />
         <span className="sr-only">Menu akun</span>
