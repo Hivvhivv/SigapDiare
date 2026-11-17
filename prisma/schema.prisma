@@ -1,0 +1,444 @@
+// Skema database SIGAP DIARE (MongoDB). Lihat ARCHITECTURE.md §7.
+//
+// Catatan MongoDB:
+// - Prisma butuh MongoDB dalam mode replica set (Atlas sudah begitu secara bawaan).
+// - Field opsional yang harus unik (User.phoneNumber, User.email, User.accessCodeHash) TIDAK diberi
+//   @unique karena unique index MongoDB menganggap banyak nilai null sebagai duplikat. Indeksnya dibuat
+//   sebagai partial unique index oleh prisma/indexes.ts (dijalankan oleh `npm run db:push`).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContentKind {
+  GENERAL
+  CLINICAL
+}
+
+enum StoolConsistency {
+  NORMAL
+  SOFT
+  WATERY
+}
+
+enum DrinkingAbility {
+  NORMAL
+  REDUCED
+  UNABLE
+}
+
+enum GeneralCondition {
+  ACTIVE
+  FUSSY
+  LETHARGIC
+}
+
+enum EvalPhase {
+  PRETEST
+  POSTTEST
+}
+
+enum EvalQuestionType {
+  SCALE
+  CHOICE
+  TEXT
+}
+
+enum ReminderRepeat {
+  ONCE
+  DAILY
+}
+
+enum CareLogType {
+  ORALIT
+  FLUID
+  ZINC
+}
+
+enum ChecklistScope {
+  PREVENTION
+  EPISODE
+}
+
+// ── Identitas & sesi ────────────────────────────────────
+
+model User {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  phoneNumber        String? // wajib & unik untuk responden, E.164 (+628…). Partial unique index.
+  email              String? // hanya admin. Partial unique index.
+  passwordHash       String? // hanya admin (scrypt)
+  role               Role      @default(USER)
+  isClinicalReviewer Boolean   @default(false)
+  banned             Boolean   @default(false)
+  // kredensial responden (null untuk admin)
+  accessCodeHash     String? // HMAC-SHA256, untuk login. Partial unique index.
+  accessCodeEnc      String? // AES-256-GCM, untuk ditampilkan ke pemilik & admin
+  accessCodeIssuedAt DateTime?
+  timezone           String    @default("Asia/Jakarta")
+  activeChildId      String?   @db.ObjectId
+  lastActiveAt       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  sessions          Session[]
+  children          ChildProfile[]
+  consents          Consent[]
+  checklistDays     ChecklistDay[]
+  reminders         Reminder[]
+  pushSubscriptions PushSubscription[]
+  lessonProgress    LessonProgress[]
+  participants      Participant[] // selalu tepat satu untuk responden
+
+  @@index([role, createdAt])
+}
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tokenHash String   @unique // SHA-256 dari token cookie; token mentah tidak disimpan
+  userId    String   @db.ObjectId
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Consent {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  policyVersion String
+  acceptedAt    DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Penghitung berurutan (pengganti autoincrement), mis. nomor kode responden.
+model Counter {
+  id    String @id @map("_id")
+  value Int
+}
+
+// ── Anak & pemantauan ───────────────────────────────────
+
+model ChildProfile {
+  id        String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String            @db.ObjectId
+  nickname  String
+  birthDate DateTime // tengah malam UTC dari tanggal lahir
+  sex       Sex
+  weightKg  Float?
+  avatarKey String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries   TrackerEntry[]
+  episodes  DiarrheaEpisode[]
+
+  @@index([userId])
+}
+
+model TrackerEntry {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  childId          String            @db.ObjectId
+  episodeId        String?           @db.ObjectId
+  recordedAt       DateTime
+  stoolCount       Int
+  consistency      StoolConsistency
+  bloodInStool     Boolean?
+  vomitCount       Int?
+  drinkingAbility  DrinkingAbility?
+  generalCondition GeneralCondition?
+  worsening        Boolean?
+  notes            String? // maks. 1000 karakter (divalidasi di server)
+  dangerFlags      String[] // kode tanda bahaya yang terpicu, untuk statistik
+  createdAt        DateTime          @default(now())
+  child            ChildProfile      @relation(fields: [childId], references: [id], onDelete: Cascade)
+  episode          DiarrheaEpisode?  @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+
+  @@index([childId, recordedAt])
+}
+
+// Dimulai & diakhiri manual oleh pengguna.
+model DiarrheaEpisode {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  childId         String         @db.ObjectId
+  startedAt       DateTime
+  endedAt         DateTime?
+  // Rencana perawatan: DIISI PENGGUNA sesuai instruksi tenaga kesehatan, bukan dihitung sistem.
+  zincDays        Int?
+  fluidTargetMl   Int?
+  instructionNote String?
+  child           ChildProfile   @relation(fields: [childId], references: [id], onDelete: Cascade)
+  entries         TrackerEntry[]
+  careLogs        CareLog[]
+
+  @@index([childId, endedAt])
+}
+
+model CareLog {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  episodeId String          @db.ObjectId
+  type      CareLogType
+  amountMl  Int? // untuk ORALIT/FLUID
+  givenAt   DateTime
+  episode   DiarrheaEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@index([episodeId, givenAt])
+}
+
+model ChecklistItem {
+  id     String         @id @default(auto()) @map("_id") @db.ObjectId
+  label  String
+  order  Int
+  scope  ChecklistScope @default(PREVENTION) // EPISODE = hanya tampil saat episode aktif
+  kind   ContentKind    @default(GENERAL) // item perawatan = CLINICAL, wajib disetujui
+  status ContentStatus  @default(DRAFT)
+  active Boolean        @default(true)
+}
+
+model ChecklistDay {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  date         DateTime // tanggal lokal pengguna, disimpan sebagai tengah malam UTC
+  checkedItems String[] // id ChecklistItem
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model Reminder {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String         @db.ObjectId
+  title       String
+  description String?
+  dueAt       DateTime // UTC
+  repeat      ReminderRepeat @default(ONCE)
+  active      Boolean        @default(true)
+  completedAt DateTime?
+  lastSentAt  DateTime?
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([active, dueAt])
+}
+
+model PushSubscription {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String @db.ObjectId
+  endpoint String @unique
+  p256dh   String
+  auth     String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Konten ──────────────────────────────────────────────
+
+model Topic {
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  slug     String        @unique // mengenal-diare, pencegahan, penanganan, tanda-bahaya
+  title    String
+  summary  String
+  coverKey String?
+  order    Int
+  kind     ContentKind   @default(GENERAL)
+  status   ContentStatus @default(DRAFT)
+  lessons  Lesson[]
+}
+
+model Lesson {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  topicId      String           @db.ObjectId
+  slug         String
+  title        String
+  body         Json // blok: paragraph, image, callout, list, steps
+  order        Int
+  kind         ContentKind      @default(GENERAL)
+  status       ContentStatus    @default(DRAFT)
+  references   String[]
+  reviewedById String?          @db.ObjectId
+  approvedById String?          @db.ObjectId
+  approvedAt   DateTime?
+  publishedAt  DateTime?
+  topic        Topic            @relation(fields: [topicId], references: [id])
+  progress     LessonProgress[]
+
+  @@unique([topicId, slug])
+}
+
+model LessonProgress {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  lessonId    String   @db.ObjectId
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+// Informasi takaran oralit/zinc per kelompok usia. Isi DITULIS dan DISETUJUI tenaga kesehatan.
+model GuidanceRule {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  subject      String // "ORALIT" | "ZINC"
+  minAgeMonths Int
+  maxAgeMonths Int
+  content      Json
+  references   String[]
+  status       ContentStatus @default(DRAFT)
+  approvedById String?       @db.ObjectId
+  approvedAt   DateTime?
+}
+
+model FaqItem {
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  category String
+  question String
+  answer   String
+  order    Int
+  kind     ContentKind   @default(GENERAL)
+  status   ContentStatus @default(DRAFT)
+}
+
+// ── Evaluasi penelitian (terpisah dari identitas) ───────
+
+model Participant {
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  seq      Int           @unique
+  code     String        @unique // kode responden, contoh: R-0042 (BUKAN kode akses)
+  userId   String?       @db.ObjectId // diputus (null) saat hapus akun
+  user     User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  attempts EvalAttempt[]
+
+  @@index([userId])
+}
+
+model EvalInstrument {
+  id                    String         @id @default(auto()) @map("_id") @db.ObjectId
+  phase                 EvalPhase
+  version               Int
+  title                 String
+  intro                 String?
+  opensAt               DateTime?
+  closesAt              DateTime?
+  showResultsAfterClose Boolean        @default(false)
+  createdAt             DateTime       @default(now())
+  questions             EvalQuestion[]
+  attempts              EvalAttempt[]
+
+  @@unique([phase, version])
+}
+
+model EvalQuestion {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  instrumentId String           @db.ObjectId
+  order        Int
+  section      String? // bagian/dimensi untuk subskor
+  type         EvalQuestionType
+  prompt       String
+  required     Boolean          @default(true)
+  points       Int              @default(1) // bobot CHOICE/TEXT; SCALE memakai nilai skala
+  scored       Boolean          @default(true) // false = isian terbuka yang tidak dinilai
+
+  // ── dikirim ke client ──
+  options     Json? // CHOICE: [{id, label}]
+  scaleMin    Int?
+  scaleMax    Int?
+  scaleLabels Json? // SCALE: {"1": "Sangat Tidak Setuju", ...}
+  textVariant String? // TEXT: "SHORT" | "LONG"
+
+  // ── TIDAK PERNAH dikirim ke client ──
+  answerKey     String? // CHOICE: id opsi benar
+  reverseScored Boolean @default(false) // SCALE: pernyataan negatif
+  rubric        String? // TEXT: contoh jawaban / pedoman penilai
+
+  instrument EvalInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  answers    EvalAnswer[]
+
+  @@index([instrumentId, order])
+}
+
+model EvalAttempt {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  participantId String         @db.ObjectId
+  instrumentId  String         @db.ObjectId
+  startedAt     DateTime       @default(now())
+  submittedAt   DateTime?
+  autoScore     Int?
+  totalScore    Int?
+  sectionScores Json?
+  participant   Participant    @relation(fields: [participantId], references: [id])
+  instrument    EvalInstrument @relation(fields: [instrumentId], references: [id])
+  answers       EvalAnswer[]
+
+  @@unique([participantId, instrumentId])
+}
+
+model EvalAnswer {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  attemptId  String       @db.ObjectId
+  questionId String       @db.ObjectId
+  optionId   String?
+  scaleValue Int?
+  textValue  String? // maks. 500 karakter (divalidasi di server)
+  score      Int? // null = belum dinilai (TEXT)
+  scoredById String?      @db.ObjectId
+  scoredAt   DateTime?
+  scoreNote  String?
+  attempt    EvalAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question   EvalQuestion @relation(fields: [questionId], references: [id])
+
+  @@unique([attemptId, questionId])
+}
+
+// ── Admin & analitik ────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  actorId   String   @db.ObjectId
+  action    String // respondent.list_view, access_code.copy, access_code.regenerate, ...
+  target    String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model ActivityEvent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  type      String // lesson.view, checklist.save, tracker.save, danger.alert_shown
+  refId     String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+}
+
+model SiteSetting {
+  key   String @id @map("_id")
+  value Json
+}
