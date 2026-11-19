@@ -13,6 +13,8 @@ export default function DangerSignsPage() {
     <Container narrow>
       <PageHeader
         title="Kenali Tanda Bahaya Diare!"
+        illustration="tanda-bahaya"
+        tone="warm"
         description="Diare bisa membuat si kecil kehilangan banyak cairan tubuh. Kenali tanda-tanda di bawah ini agar Ayah/Bunda tahu kapan harus segera membawa anak ke fasilitas kesehatan."
       />
 

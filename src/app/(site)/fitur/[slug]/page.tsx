@@ -5,10 +5,6 @@ import { requireRespondent } from "@/server/guards";
 
 // Fitur yang belum dibangun. Masing-masing akan mendapat route sendiri.
 const UPCOMING: Record<string, { title: string; description: string }> = {
-  pelacak: {
-    title: "Catatan Diare",
-    description: "Catat kondisi si kecil untuk memantau perubahannya dari waktu ke waktu.",
-  },
   pengingat: {
     title: "Pengingat",
     description: "Atur pengingat kebersihan, oralit sesuai instruksi, dan jadwal kontrol.",

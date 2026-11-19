@@ -91,4 +91,4 @@ Website ini menyentuh kesehatan anak. Setiap perubahan kode harus mematuhi atura
 
 ## Alur Konten Klinis
 
-Konten bertipe klinis (oralit, zinc, ASI/makanan, tanda bahaya, panduan takaran) mengikuti status `DRAFT → IN_REVIEW → APPROVED → PUBLISHED`. Hanya pengguna dengan flag `isClinicalReviewer` yang dapat mengubah status ke `APPROVED`. Jangan membuat jalan pintas yang mempublikasikan konten klinis tanpa persetujuan.
+Konten bertipe klinis (oralit, zinc, ASI/makanan, tanda bahaya, panduan takaran) mengikuti status `DRAFT → IN_REVIEW → APPROVED → PUBLISHED`. Hanya pengguna dengan flag `isClinicalReviewer` yang dapat mengubah status ke `APPROVED`. Jangan membuat jalan pintas yang mempublikasikan konten klinis tanpa persetujuan. Aturan transisi ada di `src/lib/content/workflow.ts` (wajib disertai unit test bila diubah); query responden wajib memakai `VISIBLE_LESSON` dari `src/server/queries/content.ts`.

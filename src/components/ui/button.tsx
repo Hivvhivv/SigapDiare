@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
-export type ButtonVariant = "primary" | "tonal" | "inverted" | "outlined" | "danger" | "text" | "white";
+export type ButtonVariant = "primary" | "tonal" | "inverted" | "outlined" | "danger" | "text" | "white" | "sunny";
 export type ButtonSize = "md" | "sm";
 
 const variants: Record<ButtonVariant, string> = {
@@ -13,6 +13,8 @@ const variants: Record<ButtonVariant, string> = {
   danger: "bg-danger text-white hover:bg-danger-strong",
   text: "bg-transparent px-2 text-primary-700 hover:bg-primary-50",
   white: "bg-white text-primary-700 hover:bg-primary-50",
+  // Ajakan utama yang ceria (gaya mockup): kuning dengan teks gelap (kontras > 8:1).
+  sunny: "bg-tertiary-400 text-neutral-900 shadow-[0_4px_0_rgb(180_83_9/0.35)] hover:bg-tertiary-300 active:translate-y-0.5 active:shadow-none",
 };
 
 const sizes: Record<ButtonSize, string> = {

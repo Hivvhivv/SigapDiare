@@ -1,5 +1,6 @@
-import { ArrowLeftRight, KeyRound, LogOut } from "lucide-react";
+import { ArrowLeftRight, ChevronRight, FileText, KeyRound, LogOut, Trash2 } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { RevealCode } from "@/components/access-code/reveal-code";
 import { Container, PageHeader } from "@/components/layout/page-header";
 import { ButtonLink } from "@/components/ui/button";
@@ -73,7 +74,7 @@ export default async function ProfilePage() {
         {code && <RevealCode code={code} />}
       </section>
 
-      <section className="rounded-xl border border-outline-variant bg-surface p-6">
+      <section className="mb-6 rounded-xl border border-outline-variant bg-surface p-6">
         <h2 className="mb-3 text-h3 font-bold">Profil Anak</h2>
         {activeChild ? (
           <p className="mb-4 flex flex-wrap items-center gap-2 text-body">
@@ -89,6 +90,25 @@ export default async function ProfilePage() {
           <ArrowLeftRight aria-hidden className="size-5" />
           Ganti / Tambah Anak
         </ButtonLink>
+      </section>
+
+      <section aria-labelledby="account-title" className="rounded-xl border border-outline-variant bg-surface p-2">
+        <h2 id="account-title" className="sr-only">
+          Pengaturan Akun
+        </h2>
+        <Link href="/kebijakan-privasi" className="flex min-h-14 items-center gap-3 rounded-lg px-4 text-body font-semibold hover:bg-surface-container">
+          <FileText aria-hidden className="size-5 text-on-surface-variant" />
+          <span className="flex-1">Kebijakan Privasi</span>
+          <ChevronRight aria-hidden className="size-5 text-on-surface-variant" />
+        </Link>
+        <Link
+          href="/profil/hapus-akun"
+          className="flex min-h-14 items-center gap-3 rounded-lg px-4 text-body font-semibold text-danger-strong hover:bg-danger-soft"
+        >
+          <Trash2 aria-hidden className="size-5" />
+          <span className="flex-1">Hapus Akun</span>
+          <ChevronRight aria-hidden className="size-5" />
+        </Link>
       </section>
     </Container>
   );

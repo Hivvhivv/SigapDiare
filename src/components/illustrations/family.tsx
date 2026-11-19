@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 /** Ilustrasi orang tua menggendong si kecil (sederhana, warna design system). Pengganti sementara aset ilustrator. */
 export function FamilyIllustration({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 320 240" role="img" aria-label="Ilustrasi orang tua menggendong si kecil" className={cn("h-auto w-full", className)}>
+    <svg viewBox="0 0 320 240" aria-hidden className={cn("h-auto w-full", className)}>
       {/* latar */}
       <circle cx="160" cy="132" r="104" fill="#e0f2fe" />
       <circle cx="262" cy="58" r="30" fill="#fef3c7" />

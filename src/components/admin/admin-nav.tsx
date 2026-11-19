@@ -11,7 +11,7 @@ const ITEMS: Item[] = [
   { href: "/admin", label: "Dashboard", Icon: LayoutDashboard, ready: true },
   { href: "/admin/responden", label: "Responden", Icon: Users, ready: true },
   { href: "/admin/evaluasi", label: "Evaluasi", Icon: ClipboardCheck, ready: true },
-  { href: "/admin/edukasi", label: "Konten Edukasi", Icon: BookOpen, ready: false },
+  { href: "/admin/edukasi", label: "Konten Edukasi", Icon: BookOpen, ready: true },
   { href: "/admin/admin", label: "Kelola Admin", Icon: ShieldCheck, ready: true, superOnly: true },
   { href: "/admin/akun", label: "Akun Saya", Icon: KeyRound, ready: true },
 ];

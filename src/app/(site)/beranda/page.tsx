@@ -12,7 +12,8 @@ import {
 import type { Metadata } from "next";
 import { ChecklistCard } from "@/components/home/checklist-card";
 import { QuickAccess } from "@/components/home/quick-access";
-import { FamilyIllustration } from "@/components/illustrations/family";
+import { Illustration } from "@/components/illustrations/illustration";
+import { SceneDecor } from "@/components/illustrations/scene";
 import { DangerAlert } from "@/components/safety/danger-alert";
 import { DoctorCard } from "@/components/safety/doctor-card";
 import { ButtonLink } from "@/components/ui/button";
@@ -68,7 +69,8 @@ export default async function HomePage() {
       </section>
 
       {/* Hero */}
-      <section className="grid items-center gap-6 rounded-xl border border-primary-100 bg-gradient-to-br from-primary-50 to-surface p-6 lg:grid-cols-12 lg:p-10">
+      <section className="relative isolate grid items-center gap-6 overflow-hidden rounded-xl border border-primary-100 bg-linear-to-b from-secondary-100 via-primary-50 to-surface p-6 pb-20 lg:grid-cols-12 lg:p-10 lg:pb-24">
+        <SceneDecor />
         <div className="flex flex-col gap-4 lg:col-span-7">
           <Chip className="w-fit">
             <Sparkles aria-hidden className="size-4" />
@@ -99,14 +101,14 @@ export default async function HomePage() {
             </div>
           )}
           <div className="flex flex-wrap gap-3">
-            <ButtonLink href="/fitur/pelacak">Catat Kondisi Hari Ini</ButtonLink>
+            <ButtonLink href="/fitur/pelacak/catat">Catat Kondisi Hari Ini</ButtonLink>
             <ButtonLink href="/edukasi/penanganan" variant="outlined">
               Panduan Cepat LINTAS DIARE
             </ButtonLink>
           </div>
         </div>
-        <div className="hidden lg:col-span-5 lg:block">
-          <FamilyIllustration />
+        <div className="mx-auto w-full max-w-[220px] lg:col-span-5 lg:max-w-none">
+          <Illustration name="keluarga" priority />
         </div>
       </section>
 

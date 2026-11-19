@@ -19,6 +19,8 @@ export default async function EvaluationPage() {
     <Container narrow>
       <PageHeader
         title="Kuis Pengetahuan"
+        illustration="kuis"
+        tone="sunny"
         description="Ada dua kuis singkat: Kuis Awal sebelum belajar dan Kuis Akhir sesudahnya. Jawaban Ayah/Bunda membantu penelitian SIGAP DIARE."
       />
       <ul className="flex flex-col gap-4">

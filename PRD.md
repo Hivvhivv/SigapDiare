@@ -223,7 +223,7 @@ Teks pembuka tiap materi ada di Lampiran A.
 
 | ID | Kebutuhan | Prioritas |
 |---|---|---|
-| TRACK-01 | Catatan per anak: tanggal & waktu, frekuensi BAB, konsistensi tinja, darah pada tinja (ya/tidak), frekuensi muntah, kemampuan minum/menyusu, kondisi umum, catatan tambahan | P0 |
+| TRACK-01 | Catatan per anak: tanggal & waktu, frekuensi BAB, konsistensi tinja, darah pada tinja (ya/tidak), frekuensi muntah, muntah terus-menerus, kemampuan minum/menyusu, kondisi umum, tanda lain yang terlihat (mata cekung, mulut kering, makin buruk), catatan tambahan. Peringatan tanda bahaya tampil seketika saat diisi, sebelum disimpan | P0 |
 | TRACK-02 | Formulir ringkas: field wajib hanya tanggal, frekuensi BAB, konsistensi | P0 |
 | TRACK-03 | Simpan → masuk riwayat; riwayat diurutkan per tanggal dengan ringkasan frekuensi BAB (grafik sederhana) | P0 |
 | TRACK-04 | Detail, ubah, dan hapus catatan | P0 |

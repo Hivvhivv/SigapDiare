@@ -166,22 +166,25 @@ model ChildProfile {
 }
 
 model TrackerEntry {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  childId          String            @db.ObjectId
-  episodeId        String?           @db.ObjectId
-  recordedAt       DateTime
-  stoolCount       Int
-  consistency      StoolConsistency
-  bloodInStool     Boolean?
-  vomitCount       Int?
-  drinkingAbility  DrinkingAbility?
-  generalCondition GeneralCondition?
-  worsening        Boolean?
-  notes            String? // maks. 1000 karakter (divalidasi di server)
-  dangerFlags      String[] // kode tanda bahaya yang terpicu, untuk statistik
-  createdAt        DateTime          @default(now())
-  child            ChildProfile      @relation(fields: [childId], references: [id], onDelete: Cascade)
-  episode          DiarrheaEpisode?  @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+  id                 String            @id @default(auto()) @map("_id") @db.ObjectId
+  childId            String            @db.ObjectId
+  episodeId          String?           @db.ObjectId
+  recordedAt         DateTime
+  stoolCount         Int
+  consistency        StoolConsistency
+  bloodInStool       Boolean?
+  vomitCount         Int?
+  persistentVomiting Boolean? // dilaporkan orang tua: muntah terus-menerus
+  drinkingAbility    DrinkingAbility?
+  generalCondition   GeneralCondition?
+  worsening          Boolean?
+  sunkenEyes         Boolean?
+  dryMouth           Boolean?
+  notes              String? // maks. 1000 karakter (divalidasi di server)
+  dangerFlags        String[] // kode tanda bahaya yang terpicu, untuk statistik
+  createdAt          DateTime          @default(now())
+  child              ChildProfile      @relation(fields: [childId], references: [id], onDelete: Cascade)
+  episode            DiarrheaEpisode?  @relation(fields: [episodeId], references: [id], onDelete: SetNull)
 
   @@index([childId, recordedAt])
 }

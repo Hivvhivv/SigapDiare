@@ -195,6 +195,7 @@ Ringkasan skema Prisma (field audit `createdAt`/`updatedAt` ada di semua model, 
 - `Participant.userId` tanpa `@unique` (relasi `User.participants`, selalu satu per responden); nomor `seq` diambil dari model `Counter`, bukan autoincrement.
 - `LessonProgress` memakai id sendiri + `@@unique([userId, lessonId])` (MongoDB tidak mendukung id komposit).
 - Relasi `onDelete` diemulasikan Prisma.
+- `TrackerEntry` juga menyimpan `persistentVomiting`, `sunkenEyes`, `dryMouth` (tanda bahaya yang dilaporkan orang tua) selain `bloodInStool`, `drinkingAbility`, `generalCondition`, `worsening`; semuanya diperiksa `detectDangerSigns` dan hasilnya disimpan di `dangerFlags`. Implementasi: `src/lib/validation/tracker.ts`, `src/server/actions/tracker.ts`, `src/server/queries/tracker.ts`, halaman `/fitur/pelacak/**`.
 
  Di skema sebenarnya `User` juga punya `passwordHash` (admin), dan ada model `Session` (`tokenHash`, `userId`, `expiresAt`).
 
@@ -514,7 +515,7 @@ Catatan:
 - Waktu disimpan dalam UTC; `ChecklistDay.date` disimpan sebagai tanggal lokal pengguna (berdasarkan `User.timezone`).
 - Usia anak dihitung dari `birthDate` di `lib/dates.ts`, tidak disimpan.
 - Kartu Progres Penanganan di beranda dihitung di `src/server/queries/home.ts` dari `CareLog` dan rencana di `DiarrheaEpisode`: total ml hari ini, hari ke-n zinc (jumlah hari berbeda dengan log `ZINC`), dan pemberian oralit terakhir. Tidak ada label status klinis yang dihitung.
-- Hapus akun: `User` dihapus → cascade ke anak, pelacak, checklist, pengingat; `Participant.userId` menjadi null sehingga data evaluasi tetap anonim.
+- Hapus akun: `User` dihapus → cascade ke anak, pelacak, checklist, pengingat; `Participant.userId` menjadi null sehingga data evaluasi tetap anonim. Diimplementasikan di `src/server/services/account.ts` (halaman `/profil/hapus-akun`, konfirmasi dengan mengetik HAPUS); `ActivityEvent.userId` ikut diputus (null) agar statistik penggunaan tetap ada tanpa identitas. Nomor HP yang sama dapat mendaftar lagi dan mendapat kode responden baru.
 
 ## 8. Evaluasi dan Data Penelitian
 
@@ -582,12 +583,15 @@ DRAFT ──(admin kirim)──▶ IN_REVIEW ──(peninjau klinis setuju)─�
 ```
 
 - Konten `kind = GENERAL` boleh langsung `DRAFT → PUBLISHED` oleh admin.
-- Konten `kind = CLINICAL` (materi Penanganan, Tanda Bahaya, FAQ oralit/zinc/dehidrasi, seluruh `GuidanceRule`) wajib melewati `APPROVED` oleh pengguna dengan `isClinicalReviewer`; transisi diperiksa di server (`src/server/actions/content.ts`).
-- Mengubah konten klinis yang sudah `PUBLISHED` membuat versi draft baru; versi terbit tetap tampil sampai revisi disetujui.
+- Konten `kind = CLINICAL` (materi Penanganan, Tanda Bahaya, FAQ oralit/zinc/dehidrasi, seluruh `GuidanceRule`) wajib melewati `APPROVED` oleh pengguna dengan `isClinicalReviewer`; transisi didefinisikan di `src/lib/content/workflow.ts` (teruji unit) dan diperiksa di server (`src/server/actions/admin-content.ts`). Konten klinis yang terbit juga wajib punya `approvedById` (dicek lagi saat menerbitkan dan di query responden `VISIBLE_LESSON`).
+- Hanya peninjau klinis yang dapat mengubah jenis konten dari `CLINICAL` ke `GENERAL`. Konten `GENERAL` yang memuat angka takaran (ml, mg, sachet, tablet, dll.) ditolak dan harus dijadikan `CLINICAL`.
+- Mengubah isi konten klinis yang sudah `IN_REVIEW`/`APPROVED`/`PUBLISHED` mengembalikannya ke `DRAFT` dan menghapus persetujuan; submateri langsung hilang dari responden sampai disetujui dan diterbitkan ulang. (Rancangan awal: versi draft terpisah sementara versi terbit tetap tampil. Belum dibangun; perlu model versi.) Menarik publikasi tanpa mengubah isi (`PUBLISHED → APPROVED`) tetap menyimpan persetujuan.
+- Materi (topik) hanya bisa diterbitkan bila punya minimal satu submateri yang terlihat responden. Topik `tanda-bahaya` tidak dikelola di sini; ia diarahkan ke `/tanda-bahaya`.
 - Setiap transisi status dicatat di `AuditLog`.
-- Isi materi disimpan sebagai **blok JSON** (paragraph, heading, image, callout, list, steps) yang dirender oleh komponen sendiri, sehingga tidak ada HTML mentah dari admin yang dirender (aman dari XSS).
-- Ilustrasi diunggah ke object storage lewat presigned URL; hanya `image/png|jpeg|webp|svg+xml` (SVG disanitasi) maks 2 MB.
-- Halaman edukasi dan `/tanda-bahaya` dirender statis dengan revalidasi on-demand (`revalidatePath`) saat konten diterbitkan.
+- Isi materi disimpan sebagai **blok JSON** (paragraph, heading, image, callout, list, steps) yang dirender oleh komponen sendiri, sehingga tidak ada HTML mentah dari admin yang dirender (aman dari XSS). Admin menulisnya dengan format teks sederhana (`## subjudul`, `- butir`, `1. langkah`, `> penting`, `![keterangan](/path.png)`) yang diurai `src/lib/content/lesson-body.ts`.
+- Ilustrasi diunggah ke object storage lewat presigned URL; hanya `image/png|jpeg|webp|svg+xml` (SVG disanitasi) maks 2 MB. (Belum dibangun: saat ini gambar materi hanya boleh berupa path file di `public/`.)
+- Halaman edukasi dirender dinamis (butuh session untuk progres baca); `revalidatePath` tetap dipanggil setiap konten berubah.
+- Progres baca: tombol "Sudah Paham, Lanjut" menyimpan `LessonProgress`; setiap tampilan submateri dicatat sebagai `ActivityEvent` `lesson.view` (dipakai dashboard admin).
 
 ## 11. Pengingat dan Notifikasi
 

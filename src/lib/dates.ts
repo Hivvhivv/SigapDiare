@@ -9,6 +9,11 @@ export function jakartaLocalToUtc(value: string): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+/** Waktu sekarang sebagai nilai <input type="datetime-local"> WIB (nilai bawaan form). */
+export function nowJakartaLocalInput(): string {
+  return utcToJakartaLocalInput(new Date());
+}
+
 /** Date UTC → nilai <input type="datetime-local"> dalam WIB. */
 export function utcToJakartaLocalInput(date: Date | null | undefined): string {
   if (!date) return "";

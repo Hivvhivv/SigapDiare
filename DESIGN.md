@@ -546,6 +546,15 @@ Penyesuaian keselamatan dari mockup (wajib):
 
 ## 8. Ilustrasi dan Gambar
 
+**Implementasi (gaya mockup visual):**
+
+- **Slot ilustrasi** `<Illustration name="…">` (`src/components/illustrations/illustration.tsx`): memakai `public/illustrations/<nama>.webp|png|jpg|svg` bila ada, bila tidak tampil SVG pengganti. Nama slot: `keluarga`, `edukasi`, `fitur`, `tanda-bahaya`, `catatan`, `kuis`, `tanya-jawab`. Spesifikasi file ada di `public/illustrations/README.md`. Pada produksi, file baru baru terlayani setelah build ulang.
+- **Latar pemandangan** `<SceneDecor tone>` (awan, bukit, rumah kecil, kilau, hati) untuk hero; nada `sky` (umum), `mint` (catatan), `sunny` (kuis), `warm` (tanda bahaya: merah muda lembut, tidak menakutkan).
+- **Header hero**: `<PageHeader illustration="…" tone="…">` menampilkan judul besar + ilustrasi di kanan pada kartu berlatar warna.
+- **Warna aksen fitur** (`src/components/ui/icon-bubble.tsx`): setiap fitur punya warna pastel sendiri (biru, hijau, merah muda, merah untuk Tanda Bahaya, ungu, kuning, oranye, toska) dengan ikon dalam bulatan bergradasi (`IconBubble`). Pemetaan fitur → warna: `FEATURE_TONE` di `quick-access.tsx`.
+- Tombol ajakan utama di halaman awal memakai varian `sunny` (kuning, teks gelap).
+
+
 - Gaya: flat/semi-flat, sudut membulat, garis lembut, tanpa outline hitam tebal.
 - Palet ilustrasi: primary, secondary, tertiary dalam tingkat 100–500 + warna kulit beragam.
 - Tokoh: ibu (termasuk berkerudung dan tidak), anak balita, tenaga kesehatan (bidan/dokter), latar rumah dan puskesmas Indonesia.
